@@ -3,6 +3,7 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تفاصيل التبرع</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
@@ -10,94 +11,40 @@
 <style>
     .ltr {
         direction: ltr;
-        unicode-bidi: bidi-override; 
+        unicode-bidi: bidi-override;
+    }
+    @media (max-width: 640px) {
+        .mobile-p {
+            padding-left: 0.5rem !important;
+            padding-right: 0.5rem !important;
+        }
     }
 </style>
 <body class="bg-gray-50 min-h-screen">
-    <header class="bg-gradient-to-r from-green-400 to-blue-500 text-white p-8 text-center rounded-b-xl shadow-lg">
-        <h1 class="text-3xl font-bold mb-2">جمعية تاركا للتنمية والأعمال الاجتماعية</h1>
-        <p class="text-lg mb-4">ساهم في تغيير حياة الآخرين من خلال تبرعك.</p>
+    <!-- Header ajusté -->
+    <header class="bg-gradient-to-r from-green-400 to-blue-500 text-white p-4 sm:p-8 text-center rounded-b-xl shadow-lg">
+        <h1 class="text-2xl sm:text-3xl font-bold mb-2">جمعية تاركا للتنمية والأعمال الاجتماعية</h1>
+        <p class="text-base sm:text-lg mb-4">ساهم في تغيير حياة الآخرين من خلال تبرعك.</p>
     </header>
-    <div class="container mx-auto px-4 py-8">
+
+    <div class="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
         <div class="max-w-4xl mx-auto">
-            <div class="flex justify-between items-center mb-8">
-                <h1 class="text-3xl font-bold text-gray-800">
+            <!-- En-tête de page -->
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6 sm:mb-8">
+                <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 text-center sm:text-right">
                     <%= donation.name %>
                 </h1>
-                <a href="/" class="text-blue-500 hover:text-blue-600 transition">
+                <a href="/" class="text-blue-500 bg-gray-100 px-4 py-2 rounded-lg hover:text-blue-600 transition">
                     العودة للرئيسية
                 </a>
             </div>
 
-            <div class="grid md:grid-cols-2 gap-6">
-                <!-- Liste des contributions -->
-                <div class="bg-white rounded-xl shadow-lg p-6">
-                    <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-2xl font-semibold text-gray-700">المساهمات</h2>
-                        <button onclick="downloadAsImage()" 
-                                class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition">
-                            تحميل كصورة
-                        </button>
-                    </div>
-                    <div class="flex justify-end mb-4">
-                        <a href="/download-pdf/<%= donation._id %>" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition">
-                            تحميل كـ PDF
-                        </a>
-                    </div>
-                    
-                    
-                    <div id="contribution-list" class="space-y-3">
-                        <div class="bg-gray-50 p-4 rounded-lg">
-                            <h3 class="text-xl font-semibold text-gray-800 mb-2">
-                                المجموع: <%= totalAmount %> درهم
-                            </h3>
-                        </div>
-                        <% donationDetails.forEach(detail => { %>
-                            <div class="bg-gray-50 rounded-lg p-4 flex justify-between items-center">
-                                <span class="text-gray-800 font-medium">
-                                    <%= new Date(detail.lastDate).toLocaleDateString('fr-FR', {
-                                         year: 'numeric',
-                                         month: 'long',
-                                         day: 'numeric',
-                                       }) %>
-                                 </span>
+            <!-- Grille principale -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
 
-                                <span class="text-gray-800 font-medium">
-                                    <%= detail.donorName %>
-                                </span>
-                                
-                                <span class="text-green-600 font-semibold">
-                                    <%= detail.total %> درهم
-                                </span>
-                            </div>
-
-                            
-
-                        <% }) %>
-                    
-                    </div>
-                    <div class="flex justify-between items-center mt-6">
-                        <% if (currentPage > 1) { %>
-                            <a href="/donations/<%= donation._id %>?page=<%= currentPage - 1 %>" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition">
-                                الصفحة السابقة
-                            </a>
-                        <% } %>
-                    
-                        <span class="text-gray-700">
-                            الصفحة <%= currentPage %> من <%= totalPages %>
-                        </span>
-                    
-                        <% if (currentPage < totalPages) { %>
-                            <a href="/donations/<%= donation._id %>?page=<%= currentPage + 1 %>" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition">
-                                الصفحة التالية
-                            </a>
-                        <% } %>
-                    </div>
-                </div>
-
-                <!-- Formulaire d'ajout de contribution -->
-                <div class="bg-white rounded-xl shadow-lg p-6">
-                    <h2 class="text-2xl font-semibold mb-6 text-gray-700">
+                <!-- Formulaire d'ajout -->
+                <div class="bg-white rounded-xl shadow-lg p-4 sm:p-6">
+                    <h2 class="text-xl sm:text-2xl font-semibold mb-4 sm:mb-6 text-gray-700">
                         إضافة مساهمة جديدة
                     </h2>
                     <form action="/add-contribution" method="POST" class="space-y-4">
@@ -128,20 +75,97 @@
                         </button>
                     </form>
                 </div>
+
+
+                <!-- Liste des contributions -->
+                <div class="bg-white rounded-xl shadow-lg p-4 sm:p-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-center gap-3 mb-4 sm:mb-6">
+                        <h2 class="text-xl sm:text-2xl font-semibold text-gray-700">المساهمات</h2>
+                        <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                            <button onclick="downloadAsImage()" 
+                                    class="w-full sm:w-auto bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition text-sm sm:text-base">
+                                تحميل كصورة
+                            </button>
+                            <a href="/download-pdf/<%= donation._id %>" 
+                               class="w-full sm:w-auto bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition text-center text-sm sm:text-base">
+                                تحميل كـ PDF
+                            </a>
+                        </div>
+                    </div>
+
+                    <div id="contribution-list" class="space-y-3">
+                        <!-- Total amount -->
+                        <div class="bg-gray-50 p-3 sm:p-4 rounded-lg">
+                            <h3 class="text-lg sm:text-xl font-semibold text-gray-800">
+                                المجموع: <%= totalAmount %> درهم
+                            </h3>
+                        </div>
+
+                        <!-- Liste des contributions -->
+                        <% donationDetails.forEach(detail => { %>
+                            <div class="bg-gray-50 rounded-lg p-3 sm:p-4">
+                                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                                    <div class="text-sm sm:text-base text-gray-800">
+                                        <%= new Date(detail.lastDate).toLocaleDateString('fr-FR', {
+                                            year: 'numeric',
+                                            month: 'long',
+                                            day: 'numeric',
+                                        }) %>
+                                    </div>
+                                    <div class="text-sm sm:text-base font-medium text-gray-800">
+                                        <%= detail.donorName %>
+                                    </div>
+                                    <div class="text-sm sm:text-base font-semibold text-green-600">
+                                        <%= detail.total %> درهم
+                                    </div>
+                                </div>
+                            </div>
+                        <% }) %>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="flex justify-between items-center mt-4 sm:mt-6">
+                        <% if (currentPage > 1) { %>
+                            <a href="/donations/<%= donation._id %>?page=<%= currentPage - 1 %>" 
+                               class="bg-blue-500 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-blue-600 transition text-sm sm:text-base">
+                                السابق
+                            </a>
+                        <% } else { %>
+                            <div></div>
+                        <% } %>
+
+                        <span class="text-sm sm:text-base text-gray-700">
+                            الصفحة <%= currentPage %> من <%= totalPages %>
+                        </span>
+
+                        <% if (currentPage < totalPages) { %>
+                            <a href="/donations/<%= donation._id %>?page=<%= currentPage + 1 %>" 
+                               class="bg-blue-500 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-blue-600 transition text-sm sm:text-base">
+                                التالي
+                            </a>
+                        <% } else { %>
+                            <div></div>
+                        <% } %>
+                    </div>
+                </div>
+
+                
             </div>
         </div>
     </div>
-    <footer class="bg-gray-800 text-white py-6 mt-8">
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-4 sm:py-6 mt-8">
         <div class="container mx-auto px-4">
-            <div class="flex flex-col md:flex-row justify-between">
-                <div class="mb-4">
-                    <h2 class="text-xl font-bold mb-2">تواصل معنا</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                <div class="text-center sm:text-right">
+                    <h2 class="text-lg sm:text-xl font-bold mb-2">تواصل معنا</h2>
                     <p>جمعية تاركا للتنمية والأعمال الاجتماعية</p>
-                    <p>البريد الإلكتروني: <a href="mailto:info@example.com" class="text-blue-400">Targa@gmail.com</a></p>
-                    <p >الهاتف: <a href="tel:+212 606-960772" class="text-blue-400 ltr">+212606960772</a></p>
+                    <p>البريد الإلكتروني: <a href="mailto:Targa@gmail.com" class="text-blue-400">Targa@gmail.com</a></p>
+                    <p>الهاتف: <a href="tel:+212606960772" class="text-blue-400 ltr">+212606960772</a></p>
                 </div>
-                <div class="mb-4">
-                    <h2 class="text-xl font-bold mb-2">روابط سريعة</h2>
+                <div class="text-center sm:text-right">
+                    <h2 class="text-lg sm:text-xl font-bold mb-2">روابط سريعة</h2>
                     <ul class="space-y-2">
                         <li><a href="#" class="hover:text-blue-400">الرئيسية</a></li>
                         <li><a href="#" class="hover:text-blue-400">إضافة تبرع</a></li>
@@ -149,9 +173,9 @@
                         <li><a href="#" class="hover:text-blue-400">حول الجمعية</a></li>
                     </ul>
                 </div>
-                <div>
-                    <h2 class="text-xl font-bold mb-2">تابعونا</h2>
-                    <div class="flex space-x-4">
+                <div class="text-center sm:text-right">
+                    <h2 class="text-lg sm:text-xl font-bold mb-2">تابعونا</h2>
+                    <div class="flex justify-center sm:justify-end space-x-4">
                         <a href="https://www.facebook.com" target="_blank" class="hover:text-blue-400">
                             <i class="fab fa-facebook-f"></i>
                         </a>
@@ -169,20 +193,20 @@
             </div>
         </div>
         <div class="text-center mt-4 border-t border-gray-700 pt-4">
-            <p>&copy; 2024 جمعية تاركا للتنمية والأعمال الاجتماعية. جميع الحقوق محفوظة.</p>
+            <p class="text-sm sm:text-base">&copy; 2024 جمعية تاركا للتنمية والأعمال الاجتماعية. جميع الحقوق محفوظة.</p>
         </div>
     </footer>
 
     <script>
-    function downloadAsImage() {
-        const element = document.getElementById('contribution-list');
-        html2canvas(element).then(canvas => {
-            const link = document.createElement('a');
-            link.download = 'donations-list.png';
-            link.href = canvas.toDataURL('image/png');
-            link.click();
-        });
-    }
+        function downloadAsImage() {
+            const element = document.getElementById('contribution-list');
+            html2canvas(element).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'donations-list.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+        }
     </script>
 </body>
 </html>

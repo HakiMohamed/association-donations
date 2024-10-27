@@ -2,54 +2,61 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تم إنشاء التبرع</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-50 min-h-screen flex items-center justify-center">
-    <div class="max-w-md w-full mx-4">
-        <div class="bg-white rounded-xl shadow-lg p-8 text-center">
-            <div class="mb-6">
-                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<body class="bg-gray-50 min-h-screen flex items-center justify-center py-6">
+    <div class="w-full max-w-md mx-4 sm:mx-auto">
+        <div class="bg-white rounded-xl shadow-lg p-4 sm:p-8 text-center">
+            <!-- Section succès -->
+            <div class="mb-4 sm:mb-6">
+                <div class="w-14 h-14 sm:w-16 sm:h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                    <svg class="w-7 h-7 sm:w-8 sm:h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                     </svg>
                 </div>
-                <h1 class="text-2xl font-bold text-gray-800 mb-2">تم إنشاء التبرع بنجاح</h1>
-                <p class="text-gray-600 mb-6"><%= donation.name %></p>
+                <h1 class="text-xl sm:text-2xl font-bold text-gray-800 mb-2">تم إنشاء التبرع بنجاح</h1>
+                <p class="text-gray-600 mb-4 sm:mb-6 text-sm sm:text-base"><%= donation.name %></p>
             </div>
 
-            <div class="bg-gray-50 rounded-lg p-6 mb-6">
-                <h2 class="text-lg font-semibold text-gray-700 mb-2">رمز التبرع</h2>
-                <div class="bg-white border-2 border-dashed border-gray-300 rounded-lg p-4">
-                    <p class="text-2xl font-mono font-bold text-gray-800 select-all"><%= code %></p>
+            <!-- Section code -->
+            <div class="bg-gray-50 rounded-lg p-4 sm:p-6 mb-4 sm:mb-6">
+                <h2 class="text-base sm:text-lg font-semibold text-gray-700 mb-2">رمز التبرع</h2>
+                <div class="bg-white border-2 border-dashed border-gray-300 rounded-lg p-3 sm:p-4">
+                    <p class="text-xl sm:text-2xl font-mono font-bold text-gray-800 select-all break-all"><%= code %></p>
                 </div>
-                <p class="text-sm text-gray-500 mt-2">احتفظ بهذا الرمز - ستحتاجه لحذف التبرع لاحقاً</p>
-                <button id="copy-code" class="mt-2 bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition">
-                    نسخ الرمز
-                </button>
-                <a href="https://wa.me/?text=مرحبا!%0A%0Aأود أن أشارككم تفاصيل التبرع الذي قمت به:%0A%0Aاسم التبرع: <%= donation.name %>%0Aرمز التبرع: <%= encodeURIComponent(code) %>%0A%0Aيرجى الاحتفاظ بهذا الرمز، حيث ستحتاجه لحذف التبرع لاحقاً. شكراً!" target="_blank" class="mt-2 bg-yellow-500 text-white py-2 px-4 rounded hover:bg-yellow-600 transition">
-                    إرسال عبر واتساب
-                </a>
+                <p class="text-xs sm:text-sm text-gray-500 mt-2 mb-3">احتفظ بهذا الرمز - ستحتاجه لحذف التبرع لاحقاً</p>
                 
+                <!-- Boutons de partage -->
+                <div class="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                    <button id="copy-code" class="w-full bg-green-500 text-white py-2 px-3 rounded text-sm hover:bg-green-600 transition">
+                        نسخ الرمز
+                    </button>
+                    <a href="https://wa.me/?text=مرحبا!%0A%0Aأود أن أشارككم تفاصيل التبرع الذي قمت به:%0A%0Aاسم التبرع: <%= donation.name %>%0Aرمز التبرع: <%= encodeURIComponent(code) %>%0A%0Aيرجى الاحتفاظ بهذا الرمز، حيث ستحتاجه لحذف التبرع لاحقاً. شكراً!" 
+                       target="_blank" 
+                       class="w-full bg-yellow-500 text-white py-2 px-3 rounded text-sm hover:bg-yellow-600 transition flex items-center justify-center">
+                        إرسال عبر واتساب
+                    </a>
+                </div>
             </div>
 
-            <div class="space-y-3">
+            <!-- Boutons de navigation -->
+            <div class="space-y-2 sm:space-y-3">
                 <a href="/donations/<%= donation._id %>" 
-                   class="block w-full bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition">
+                   class="block w-full bg-blue-500 text-white py-2.5 sm:py-3 rounded-lg text-sm hover:bg-blue-600 transition">
                     عرض التفاصيل
                 </a>
                 <a href="/" 
-                   class="block w-full bg-gray-100 text-gray-700 py-3 rounded-lg hover:bg-gray-200 transition">
+                   class="block w-full bg-gray-100 text-gray-700 py-2.5 sm:py-3 rounded-lg text-sm hover:bg-gray-200 transition">
                     العودة للرئيسية
                 </a>
             </div>
         </div>
     </div>
 
-    
-
     <script>
-        // Sélectionner automatiquement le code lors du clic
+        // Sélection automatique du code
         document.querySelector('.select-all').addEventListener('click', function() {
             const range = document.createRange();
             range.selectNodeContents(this);
@@ -58,24 +65,36 @@
             selection.addRange(range);
         });
 
-        // Function to copy the code to clipboard
+        // Copie du code
         document.getElementById('copy-code').addEventListener('click', function() {
             const codeElement = document.querySelector('.select-all');
-            const range = document.createRange();
-            range.selectNodeContents(codeElement);
-            const selection = window.getSelection();
-            selection.removeAllRanges();
-            selection.addRange(range);
+            const textToCopy = codeElement.textContent;
             
-            try {
-                document.execCommand('copy');
-                alert('الرمز تم نسخه بنجاح!'); // Alert user that the code has been copied
-            } catch (err) {
-                console.error('فشل النسخ:', err);
+            if (navigator.clipboard && window.isSecureContext) {
+                // Pour les navigateurs modernes
+                navigator.clipboard.writeText(textToCopy)
+                    .then(() => alert('الرمز تم نسخه بنجاح!'))
+                    .catch(err => console.error('فشل النسخ:', err));
+            } else {
+                // Fallback pour les navigateurs plus anciens
+                const textArea = document.createElement('textarea');
+                textArea.value = textToCopy;
+                textArea.style.position = 'fixed';
+                textArea.style.left = '-999999px';
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                
+                try {
+                    document.execCommand('copy');
+                    alert('الرمز تم نسخه بنجاح!');
+                } catch (error) {
+                    console.error('فشل النسخ:', error);
+                }
+                
+                textArea.remove();
             }
-            selection.removeAllRanges(); // Deselect the code
         });
     </script>
-    
 </body>
 </html>

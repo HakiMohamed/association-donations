@@ -1,0 +1,188 @@
+<!-- donation-details.ejs -->
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>تفاصيل التبرع</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+</head>
+<style>
+    .ltr {
+        direction: ltr;
+        unicode-bidi: bidi-override; 
+    }
+</style>
+<body class="bg-gray-50 min-h-screen">
+    <header class="bg-gradient-to-r from-green-400 to-blue-500 text-white p-8 text-center rounded-b-xl shadow-lg">
+        <h1 class="text-3xl font-bold mb-2">جمعية تاركا للتنمية والأعمال الاجتماعية</h1>
+        <p class="text-lg mb-4">ساهم في تغيير حياة الآخرين من خلال تبرعك.</p>
+    </header>
+    <div class="container mx-auto px-4 py-8">
+        <div class="max-w-4xl mx-auto">
+            <div class="flex justify-between items-center mb-8">
+                <h1 class="text-3xl font-bold text-gray-800">
+                    <%= donation.name %>
+                </h1>
+                <a href="/" class="text-blue-500 hover:text-blue-600 transition">
+                    العودة للرئيسية
+                </a>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- Liste des contributions -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-semibold text-gray-700">المساهمات</h2>
+                        <button onclick="downloadAsImage()" 
+                                class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition">
+                            تحميل كصورة
+                        </button>
+                    </div>
+                    <div class="flex justify-end mb-4">
+                        <a href="/download-pdf/<%= donation._id %>" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition">
+                            تحميل كـ PDF
+                        </a>
+                    </div>
+                    
+                    
+                    <div id="contribution-list" class="space-y-3">
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-2">
+                                المجموع: <%= totalAmount %> درهم
+                            </h3>
+                        </div>
+                        <% donationDetails.forEach(detail => { %>
+                            <div class="bg-gray-50 rounded-lg p-4 flex justify-between items-center">
+                                <span class="text-gray-800 font-medium">
+                                    <%= new Date(detail.lastDate).toLocaleDateString('fr-FR', {
+                                         year: 'numeric',
+                                         month: 'long',
+                                         day: 'numeric',
+                                       }) %>
+                                 </span>
+
+                                <span class="text-gray-800 font-medium">
+                                    <%= detail.donorName %>
+                                </span>
+                                
+                                <span class="text-green-600 font-semibold">
+                                    <%= detail.total %> درهم
+                                </span>
+                            </div>
+
+                            
+
+                        <% }) %>
+                    
+                    </div>
+                    <div class="flex justify-between items-center mt-6">
+                        <% if (currentPage > 1) { %>
+                            <a href="/donations/<%= donation._id %>?page=<%= currentPage - 1 %>" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition">
+                                الصفحة السابقة
+                            </a>
+                        <% } %>
+                    
+                        <span class="text-gray-700">
+                            الصفحة <%= currentPage %> من <%= totalPages %>
+                        </span>
+                    
+                        <% if (currentPage < totalPages) { %>
+                            <a href="/donations/<%= donation._id %>?page=<%= currentPage + 1 %>" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition">
+                                الصفحة التالية
+                            </a>
+                        <% } %>
+                    </div>
+                </div>
+
+                <!-- Formulaire d'ajout de contribution -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h2 class="text-2xl font-semibold mb-6 text-gray-700">
+                        إضافة مساهمة جديدة
+                    </h2>
+                    <form action="/add-contribution" method="POST" class="space-y-4">
+                        <div>
+                            <label class="block text-gray-700 text-sm font-bold mb-2">
+                                اسم المساهم
+                            </label>
+                            <input type="text" 
+                                   name="donorName" 
+                                   required 
+                                   class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                   placeholder="أدخل اسم المساهم">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 text-sm font-bold mb-2">
+                                المبلغ
+                            </label>
+                            <input type="text" 
+                                   name="amount" 
+                                   required 
+                                   class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                   placeholder="أدخل المبلغ">
+                        </div>
+                        <input type="hidden" name="donationId" value="<%= donation._id %>">
+                        <button type="submit" 
+                                class="w-full bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition font-medium">
+                            إضافة مساهمة
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer class="bg-gray-800 text-white py-6 mt-8">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between">
+                <div class="mb-4">
+                    <h2 class="text-xl font-bold mb-2">تواصل معنا</h2>
+                    <p>جمعية تاركا للتنمية والأعمال الاجتماعية</p>
+                    <p>البريد الإلكتروني: <a href="mailto:info@example.com" class="text-blue-400">Targa@gmail.com</a></p>
+                    <p >الهاتف: <a href="tel:+212 606-960772" class="text-blue-400 ltr">+212606960772</a></p>
+                </div>
+                <div class="mb-4">
+                    <h2 class="text-xl font-bold mb-2">روابط سريعة</h2>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="hover:text-blue-400">الرئيسية</a></li>
+                        <li><a href="#" class="hover:text-blue-400">إضافة تبرع</a></li>
+                        <li><a href="#" class="hover:text-blue-400">قائمة التبرعات</a></li>
+                        <li><a href="#" class="hover:text-blue-400">حول الجمعية</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold mb-2">تابعونا</h2>
+                    <div class="flex space-x-4">
+                        <a href="https://www.facebook.com" target="_blank" class="hover:text-blue-400">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="https://twitter.com" target="_blank" class="hover:text-blue-400">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="https://www.instagram.com" target="_blank" class="hover:text-blue-400">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="https://www.linkedin.com" target="_blank" class="hover:text-blue-400">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="text-center mt-4 border-t border-gray-700 pt-4">
+            <p>&copy; 2024 جمعية تاركا للتنمية والأعمال الاجتماعية. جميع الحقوق محفوظة.</p>
+        </div>
+    </footer>
+
+    <script>
+    function downloadAsImage() {
+        const element = document.getElementById('contribution-list');
+        html2canvas(element).then(canvas => {
+            const link = document.createElement('a');
+            link.download = 'donations-list.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        });
+    }
+    </script>
+</body>
+</html>

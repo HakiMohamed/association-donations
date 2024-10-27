@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>تم إنشاء التبرع</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center">
+    <div class="max-w-md w-full mx-4">
+        <div class="bg-white rounded-xl shadow-lg p-8 text-center">
+            <div class="mb-6">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                </div>
+                <h1 class="text-2xl font-bold text-gray-800 mb-2">تم إنشاء التبرع بنجاح</h1>
+                <p class="text-gray-600 mb-6"><%= donation.name %></p>
+            </div>
+
+            <div class="bg-gray-50 rounded-lg p-6 mb-6">
+                <h2 class="text-lg font-semibold text-gray-700 mb-2">رمز التبرع</h2>
+                <div class="bg-white border-2 border-dashed border-gray-300 rounded-lg p-4">
+                    <p class="text-2xl font-mono font-bold text-gray-800 select-all"><%= code %></p>
+                </div>
+                <p class="text-sm text-gray-500 mt-2">احتفظ بهذا الرمز - ستحتاجه لحذف التبرع لاحقاً</p>
+                <button id="copy-code" class="mt-2 bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition">
+                    نسخ الرمز
+                </button>
+                <a href="https://wa.me/?text=مرحبا!%0A%0Aأود أن أشارككم تفاصيل التبرع الذي قمت به:%0A%0Aاسم التبرع: <%= donation.name %>%0Aرمز التبرع: <%= encodeURIComponent(code) %>%0A%0Aيرجى الاحتفاظ بهذا الرمز، حيث ستحتاجه لحذف التبرع لاحقاً. شكراً!" target="_blank" class="mt-2 bg-yellow-500 text-white py-2 px-4 rounded hover:bg-yellow-600 transition">
+                    إرسال عبر واتساب
+                </a>
+                
+            </div>
+
+            <div class="space-y-3">
+                <a href="/donations/<%= donation._id %>" 
+                   class="block w-full bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition">
+                    عرض التفاصيل
+                </a>
+                <a href="/" 
+                   class="block w-full bg-gray-100 text-gray-700 py-3 rounded-lg hover:bg-gray-200 transition">
+                    العودة للرئيسية
+                </a>
+            </div>
+        </div>
+    </div>
+
+    
+
+    <script>
+        // Sélectionner automatiquement le code lors du clic
+        document.querySelector('.select-all').addEventListener('click', function() {
+            const range = document.createRange();
+            range.selectNodeContents(this);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+        });
+
+        // Function to copy the code to clipboard
+        document.getElementById('copy-code').addEventListener('click', function() {
+            const codeElement = document.querySelector('.select-all');
+            const range = document.createRange();
+            range.selectNodeContents(codeElement);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            
+            try {
+                document.execCommand('copy');
+                alert('الرمز تم نسخه بنجاح!'); // Alert user that the code has been copied
+            } catch (err) {
+                console.error('فشل النسخ:', err);
+            }
+            selection.removeAllRanges(); // Deselect the code
+        });
+    </script>
+    
+</body>
+</html>

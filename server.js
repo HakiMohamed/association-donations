@@ -170,7 +170,7 @@ app.get('/download-pdf/:id', async (req, res) => {
 
 
 
-mongoose.connect('mongodb://localhost:27017/donationsDB', {});
+mongoose.connect('mongodb+srv://mohamedhaki70:RwP2ge94ejyBDxIt@cluster0.9cjsc.mongodb.net/donationsDB', {});
 
 // Modèle de données amélioré
 const DonationSchema = new mongoose.Schema({

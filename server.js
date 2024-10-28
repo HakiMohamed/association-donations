@@ -3,6 +3,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const crypto = require('crypto');
+const puppeteer = require('puppeteer');
+
 
 const app = express();
 app.set('view engine', 'ejs');
@@ -10,168 +12,165 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('public'));
 app.use(express.json()); 
 
-const pdf = require('html-pdf');
+
+
 
 app.get('/download-pdf/:id', async (req, res) => {
-    const donation = await Donation.findById(req.params.id);
-    const donationDetails = await DonationDetail.find({ donationId: req.params.id })
-        .sort('-date');
+    try {
+        // Récupérer les détails du don et les contributions
+        const donation = await Donation.findById(req.params.id);
+        const donationDetails = await DonationDetail.find({ donationId: req.params.id }).sort('-date');
 
+        // Résumer les contributions par donateur
         const contributionSummary = donationDetails.reduce((acc, curr) => {
-            const { donorName, amount, date } = curr; // Ajoutez la date ici
+            const { donorName, amount, date } = curr;
             if (!acc[donorName]) {
-                acc[donorName] = { total: 0, lastDate: date }; // Conservez la dernière date
+                acc[donorName] = { total: 0, lastDate: date };
             }
             acc[donorName].total += amount;
-            acc[donorName].lastDate = date; // Met à jour la dernière date
+            acc[donorName].lastDate = date;
             return acc;
         }, {});
 
+        // Formatter les données pour le PDF
         const donationDetailsFormatted = Object.entries(contributionSummary)
-        .map(([donorName, { total, lastDate }]) => ({
-            donorName,
-            total,
-            lastDate: new Date(lastDate).toLocaleDateString('fr-FR', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-            }) // Formatez la dernière date ici
-        }));
+            .map(([donorName, { total, lastDate }]) => ({
+                donorName,
+                total,
+                lastDate: new Date(lastDate).toLocaleDateString('fr-FR', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                })
+            }));
 
-    const html = `
-       <!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تفاصيل التبرع</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f7f7f7;
-            margin: 0;
-            padding: 20px;
-        }
+        // Contenu HTML pour le PDF
+        const html = `
+            <!DOCTYPE html>
+            <html lang="ar" dir="rtl">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>تفاصيل التبرع</title>
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        background-color: #f7f7f7;
+                        margin: 0;
+                        padding: 20px;
+                    }
+                    .container {
+                        max-width: 800px;
+                        margin: 0 auto;
+                        background-color: white;
+                        border-radius: 8px;
+                        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                        padding: 20px;
+                    }
+                    h1, h2 {
+                        text-align: center;
+                        color: #333;
+                    }
+                    h1 {
+                        font-size: 2.5em;
+                        margin-bottom: 10px;
+                    }
+                    h2 {
+                        font-size: 2em;
+                        margin: 20px 0 10px;
+                    }
+                    table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin-bottom: 20px;
+                    }
+                    th, td {
+                        padding: 12px;
+                        text-align: left;
+                        border-bottom: 1px solid #ddd;
+                    }
+                    th {
+                        background-color: #f2f2f2;
+                        color: #333;
+                    }
+                    tr:nth-child(even) {
+                        background-color: #f9f9f9;
+                    }
+                    tr:hover {
+                        background-color: #f1f1f1;
+                    }
+                    .total {
+                        font-size: 1.5em;
+                        font-weight: bold;
+                        color: #2c3e50;
+                        text-align: right;
+                        margin-top: 20px;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <h1>تفاصيل التبرع: ${donation.name}</h1>
+                    <h2>المساهمات:</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>اسم المساهم</th>
+                                <th>المبلغ (درهم)</th>
+                                <th>التاريخ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${donationDetailsFormatted.map(detail => `
+                                <tr>
+                                    <td>${detail.donorName}</td>
+                                    <td>${detail.total}</td>
+                                    <td>${detail.lastDate}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                    <p class="total">المجموع: ${donation.totalAmount} درهم</p>
+                </div>
+            </body>
+            </html>
+        `;
 
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-        }
-
-        h1, h2 {
-            text-align: center;
-            color: #333;
-        }
-
-        h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-        }
-
-        h2 {
-            font-size: 2em;
-            margin: 20px 0 10px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-
-        th {
-            background-color: #f2f2f2;
-            color: #333;
-        }
-
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-
-        tr:hover {
-            background-color: #f1f1f1;
-        }
-
-        .total {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #2c3e50;
-            text-align: right;
-            margin-top: 20px;
-        }
-
-        .btn {
-            display: block;
-            width: 100%;
-            padding: 10px;
-            background-color: #007bff;
-            color: white;
-            text-align: center;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            text-decoration: none;
-            margin-top: 20px;
-        }
-
-        .btn:hover {
-            background-color: #0056b3;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>تفاصيل التبرع: ${donation.name}</h1>
-        <h2>المساهمات:</h2>
+        // Lancer Puppeteer et créer le PDF
+        const browser = await puppeteer.launch({
+            headless: true,
+            args: [
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+                '--disable-dev-shm-usage',
+                '--disable-gpu',
+                '--no-zygote'
+            ],
+        });
         
-        <table>
-            <thead>
-                <tr>
-                    <th>اسم المساهم</th>
-                    <th>المبلغ (درهم)</th>
-                    <th>التاريخ</th>
-                </tr>
-            </thead>
-            <tbody>
-                ${donationDetailsFormatted.map((detail, index) => `
-                    <tr>
-                        <td>${detail.donorName}</td>
-                        <td>${detail.total}</td>
-                        <td>${detail.lastDate}</td>
-                    </tr>
-                `).join('')}
-            </tbody>
-        </table>
+        const page = await browser.newPage();
+        await page.setContent(html, { waitUntil: 'networkidle0' });
+        const pdfBuffer = await page.pdf({ format: 'A4' });
 
-        <p class="total">المجموع: ${donation.totalAmount} درهم</p>
-        
-    </div>
-</body>
-</html>
+        await browser.close();
 
-    `;
-
-    const options = { format: 'A4' };
-
-    pdf.create(html, options).toFile(`./${donation.name}-donation-details.pdf`, (err, result) => {
-        if (err) return res.send(Promise.reject(err));
-        res.download(result.filename); // Downloads the PDF
-    });
+        // Envoyer le fichier PDF
+        res.set({
+            'Content-Type': 'application/pdf',
+            'Content-Disposition': `attachment; filename="${donation.name}-donation-details.pdf"`,
+        });
+        res.send(pdfBuffer);
+    } catch (error) {
+        console.error("Error generating PDF:", error);
+        res.status(500).send('An error occurred while generating the PDF.');
+    }
 });
 
 
 
-mongoose.connect('mongodb+srv://mohamedhaki70:RwP2ge94ejyBDxIt@cluster0.9cjsc.mongodb.net/donationsDB', {});
+
+
+mongoose.connect('mongodb://localhost:27017/donationsDB', {});
 
 // Modèle de données amélioré
 const DonationSchema = new mongoose.Schema({
@@ -286,20 +285,34 @@ app.post('/add-contribution', async (req, res) => {
     const { donorName, amount, donationId } = req.body;
     const numericAmount = parseFloat(amount);
 
-    const contribution = new DonationDetail({
-        donorName,
-        amount: numericAmount,
-        donationId
-    });
-    await contribution.save();
+    // Trim whitespace to avoid issues with extra spaces
+    const trimmedDonorName = donorName.trim();
 
-    // Mettre à jour le montant total de la donation
+    // Check if the donor already has a contribution for this donation
+    let contribution = await DonationDetail.findOne({ donorName: trimmedDonorName, donationId });
+
+    if (contribution) {
+        // If the donor already exists, update the amount by adding the new contribution
+        contribution.amount += numericAmount;
+        await contribution.save();
+    } else {
+        // If the donor does not exist, create a new contribution entry
+        contribution = new DonationDetail({
+            donorName: trimmedDonorName,
+            amount: numericAmount,
+            donationId
+        });
+        await contribution.save();
+    }
+
+    // Update the total amount for the donation
     await Donation.findByIdAndUpdate(donationId, {
         $inc: { totalAmount: numericAmount }
     });
 
     res.redirect(`/donations/${donationId}`);
 });
+
 
 app.post('/delete-donation', async (req, res) => {
     try {
